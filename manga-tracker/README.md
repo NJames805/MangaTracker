@@ -1,36 +1,342 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MangaTracker
+WebApp that tracks manga you read and gives you recommendations based on that
 
-## Getting Started
+# MangaTracker
 
-First, run the development server:
+A full-stack web application to track manga you've read and get personalized recommendations powered by Claude AI.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Overview
+
+MangaTracker lets you:
+- Search and add manga to your personal library (via MangaDex API)
+- Track reading progress (chapters/volumes read, status)
+- Get AI-powered recommendations based on your reading history
+- View your manga library in one place
+
+Built as a warmup project for Accenture Forward Deployed Engineer role. Exercises full-stack development, external API integration, LLM prompt design, and deployment.
+
+## Features
+
+- ✅ Search manga from MangaDex (real data, no mocking)
+- ✅ Persistent library (save manga to database)
+- ✅ Track reading progress (chapters read, completion status)
+- ✅ Claude API recommendations ("Based on what you've read, you should try...")
+- ✅ Deployed frontend + backend (Vercel + Railway)
+- ✅ Responsive UI (works on desktop + mobile)
+
+## Tech Stack
+
+**Frontend:**
+- Next.js (React + TypeScript)
+- TailwindCSS (styling)
+- Deployed on Vercel
+
+**Backend:**
+- Node.js + Express
+- TypeScript
+- Deployed on Railway
+
+**Database:**
+- Supabase (PostgreSQL hosted)
+
+**External APIs:**
+- MangaDex API (manga data)
+- Anthropic Claude API (recommendations)
+
+## Architecture
+
+```
+┌─────────────────────────────────────┐
+│   MangaTracker Frontend (Vercel)    │
+│   - Search UI                       │
+│   - Library Dashboard               │
+│   - Recommendation Display          │
+└─────────────────┬───────────────────┘
+                  │ API calls
+┌─────────────────▼───────────────────┐
+│   Node.js Backend (Railway)         │
+│   - GET /api/search                 │
+│   - POST /api/library               │
+│   - GET /api/library                │
+│   - PATCH /api/library/:id          │
+│   - POST /api/recommend             │
+└─────────────────┬───────────────────┘
+                  │
+        ┌─────────┼─────────┐
+        │         │         │
+    ┌───▼──┐ ┌───▼──┐  ┌───▼──┐
+    │Supabase│MangaDex│Claude │
+    │  DB   │  API   │  API   │
+    └───────┘ └───────┘ └───────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- Supabase account (free tier is fine)
+- Claude API key (from Anthropic)
+- Git
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Local Development
 
-## Learn More
+1. **Clone repo** (when created)
+   ```bash
+   git clone <repo-url>
+   cd manga-tracker
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Frontend setup**
+   ```bash
+   cd frontend
+   npm install
+   cp .env.local.example .env.local
+   # Add your API URL to .env.local
+   npm run dev
+   ```
+   Frontend runs on `http://localhost:3000`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Backend setup**
+   ```bash
+   cd backend
+   npm install
+   cp .env.example .env
+   # Add:
+   # - DATABASE_URL (from Supabase)
+   # - CLAUDE_API_KEY (from Anthropic)
+   # - MANGADEX_API_BASE (https://api.mangadex.org)
+   npm run dev
+   ```
+   Backend runs on `http://localhost:5000`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Database**
+   - Create Supabase project at https://supabase.com
+   - Run migrations (see `backend/db/migrations/`)
+   ```bash
+   npm run db:migrate
+   ```
 
-## Deploy on Vercel
+### Environment Variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Backend (.env):**
+```
+DATABASE_URL=postgresql://user:password@host:port/dbname
+CLAUDE_API_KEY=sk-ant-...
+MANGADEX_API_BASE=https://api.mangadex.org
+PORT=5000
+NODE_ENV=development
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Frontend (.env.local):**
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+## API Documentation
+
+### Search Manga
+```
+GET /api/search?query=attack%20on%20titan
+```
+**Returns:** Array of manga from MangaDex
+```json
+[
+  {
+    "id": "manga-id-123",
+    "title": "Attack on Titan",
+    "description": "...",
+    "coverUrl": "https://...",
+    "rating": 8.5,
+    "genres": ["action", "dark", "supernatural"]
+  }
+]
+```
+
+### Get Library
+```
+GET /api/library
+```
+**Returns:** User's manga library with progress
+```json
+[
+  {
+    "id": "progress-id-456",
+    "manga": { "id": "123", "title": "Attack on Titan", ... },
+    "chaptersRead": 50,
+    "volumesRead": 5,
+    "status": "reading",
+    "dateAdded": "2024-08-25T10:30:00Z"
+  }
+]
+```
+
+### Add to Library
+```
+POST /api/library
+Content-Type: application/json
+
+{
+  "mangaId": "manga-id-123",
+  "status": "reading"
+}
+```
+
+### Update Progress
+```
+PATCH /api/library/:mangaId
+Content-Type: application/json
+
+{
+  "chaptersRead": 75,
+  "status": "reading"
+}
+```
+
+### Get Recommendations
+```
+POST /api/recommend
+Content-Type: application/json
+
+{
+  "libraryIds": ["manga-id-1", "manga-id-2", "manga-id-3"]
+}
+```
+**Returns:** Claude's recommendations
+```json
+{
+  "recommendations": [
+    {
+      "title": "Jujutsu Kaisen",
+      "reason": "Similar dark action tone to Attack on Titan"
+    },
+    {
+      "title": "Demon Slayer",
+      "reason": "Strong character development and stunning fight choreography"
+    }
+  ]
+}
+```
+
+## Deployment
+
+### Deploy Backend (Railway)
+1. Push code to GitHub
+2. Connect repo to Railway
+3. Add environment variables (DATABASE_URL, CLAUDE_API_KEY)
+4. Railway auto-deploys on push
+
+### Deploy Frontend (Vercel)
+1. Push code to GitHub
+2. Import project to Vercel
+3. Add `NEXT_PUBLIC_API_URL` pointing to deployed backend
+4. Vercel auto-deploys on push
+
+### Database (Supabase)
+- Already hosted, no deployment needed
+- Run migrations once
+
+## Project Structure
+
+```
+manga-tracker/
+├── frontend/                 # Next.js app
+│   ├── app/                  # Pages + API routes
+│   ├── components/           # React components
+│   ├── lib/                  # Utilities, API client
+│   └── public/               # Static assets
+├── backend/                  # Node.js + Express
+│   ├── routes/               # API endpoints
+│   ├── controllers/          # Business logic
+│   ├── db/                   # Database schemas, migrations
+│   ├── services/             # External API calls (MangaDex, Claude)
+│   └── middleware/           # Auth, error handling
+└── README.md
+```
+
+## Development Notes
+
+### Data Model
+
+**Users** (optional — currently single-user)
+```
+id (UUID)
+created_at
+```
+
+**Manga**
+```
+id (MangaDex ID)
+title
+description
+coverUrl
+rating
+genres (array)
+```
+
+**ReadingProgress**
+```
+id (UUID)
+userId (or implicit single user)
+mangaId
+chaptersRead
+volumesRead
+status ("reading" | "completed" | "dropped")
+dateAdded
+lastUpdated
+```
+
+### Claude Recommendation Prompt
+
+```
+You are a manga recommendation assistant.
+
+User has read these manga:
+{list of title, genre, description}
+
+Recommend 3-5 manga they might enjoy based on similar themes, tone, or genre.
+Return as JSON: { "recommendations": [ { "title": "...", "reason": "..." } ] }
+```
+
+## Next Steps / Nice-to-Haves
+
+- [ ] Multi-user support with authentication
+- [ ] Manga ratings/reviews (user can rate what they've read)
+- [ ] Advanced recommendations (multi-turn Claude conversation)
+- [ ] Social sharing (link to your library)
+- [ ] Progress visualization (chart of chapters over time)
+- [ ] Mobile app (React Native)
+
+## Timeline
+
+- **Week 1:** Backend + MangaDex + Claude integration
+- **Week 2:** Frontend + full UI
+- **Week 3:** Deployment + polish
+
+Target completion: Sept 14 (2 days before start date)
+
+## Lessons Learned / Reflections
+
+*To be filled in after completion*
+- Architecture decisions made and why
+- What went smoothly
+- What was harder than expected
+- What I'd do differently next time
+
+## Resources
+
+- [MangaDex API Docs](https://mangadex.dev)
+- [Claude API Docs](https://docs.anthropic.com)
+- [Supabase Docs](https://supabase.com/docs)
+- [Next.js Docs](https://nextjs.org/docs)
+- [Express.js Docs](https://expressjs.com)
+
+## License
+
+MIT
+
+---
+
+**Built by:** Nathanael  
+**Purpose:** Accenture FDE warmup project  
+**Start date:** Sept 16, 2024
