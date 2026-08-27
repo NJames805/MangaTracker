@@ -1,21 +1,10 @@
-import express from 'express';
-import cors from 'cors';
+import { Router } from 'express';
 import { Manga, MangaDexSearchResponse } from './types';
 
-const app = express();
-
-// CORS configuration
-const corsOptions = {
-    origin: 'http://localhost:3000/',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-};
-
-app.use(cors(corsOptions));
-app.use(express.json());
+const router = Router();
 
 //search route
-app.get('/search', async (req, res) => {
+router.get('/search', async (req, res) => {
     const query = req.query.q as string;
     const results = await searchManga(query);
 
@@ -36,10 +25,13 @@ app.get('/search', async (req, res) => {
                     || Object.values(manga.attributes.title)[0]
                     || '',
                 description: manga.attributes.description?.en || '',
-                coverUrl: manga.relationships?.find((rel) => rel.type === 'cover_art')?.attributes?.fileName || '',
+                coverUrl: (() => {
+                    const fileName = manga.relationships?.find((rel) => rel.type === 'cover_art')?.attributes?.fileName;
+                    return fileName ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}` : '';
+                })(),
                 genres: manga.attributes.tags.map((tag) => tag.attributes.name.en || ''),
                 status: manga.attributes.status,
-                ...(manga.attributes.year !== undefined && { year: manga.attributes.year }),
+                ...(manga.attributes.year != null && { year: manga.attributes.year }),
             })));
         return results;
     }
@@ -49,4 +41,4 @@ app.get('/search', async (req, res) => {
 });
 
 
-export default app;
+export default router;

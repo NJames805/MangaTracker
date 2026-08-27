@@ -13,7 +13,7 @@ export interface MangaDexSearchResponse {
       altTitles?: Array<Record<string, string>>;
       description?: Record<string, string>;
       status: "ongoing" | "completed" | "hiatus" | "cancelled";
-      year?: number;
+      year?: number | null;
       contentRating: "safe" | "suggestive" | "erotica" | "pornographic";
       publicationDemographic?: string;
       tags: MangaDexTag[];
@@ -55,11 +55,17 @@ export interface MangaDexSearchResponse {
   export interface ReadingProgress {
     id: string;
     mangaId: string;
+    title: string;
+    description?: string;
+    coverUrl?: string;
+    genres: string[];
+    mangaStatus: "ongoing" | "completed" | "hiatus" | "cancelled";
+    year?: number;
     chaptersRead: number;
     volumesRead: number;
-    status: "reading" | "completed" | "dropped";
-    dateAdded: Date;
-    lastUpdated: Date;
+    readingStatus: "reading" | "completed" | "dropped";
+    dateAdded: string;
+    lastUpdated: string;
   }
   
   // API Response wrapper

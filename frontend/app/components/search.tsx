@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { Manga as MangaCard } from "./manga";
+import { createClient } from "../lib/supabase/client";
 
 interface Manga {
 	id: string;
@@ -19,8 +20,31 @@ export default function Search() {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 
-	function handleAddToList(mangaId: string) {
-		setResults((prev) => prev.filter((manga) => manga.id !== mangaId));
+	async function handleAddToList(manga: Manga) {
+		const supabase = createClient();
+		const { data: { session } } = await supabase.auth.getSession();
+
+		if (!session) {
+			setError("Sign in to add manga to your list.");
+			return;
+		}
+
+		try {
+			const response = await fetch("http://localhost:3001/library", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${session.access_token}`,
+				},
+				body: JSON.stringify(manga),
+			});
+
+			if (!response.ok && response.status !== 409) throw new Error("Failed to add to list");
+
+			setResults((prev) => prev.filter((m) => m.id !== manga.id));
+		} catch {
+			setError("Unable to add to your list right now.");
+		}
 	}
 
 	async function handleSearch(event: FormEvent<HTMLFormElement>) {
@@ -69,7 +93,7 @@ export default function Search() {
 			<ul className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
 				{results.map((manga) => (
 					<li key={manga.id}>
-						<MangaCard {...manga} onAddToList={() => handleAddToList(manga.id)} />
+						<MangaCard {...manga} onAction={() => handleAddToList(manga)} />
 					</li>
 				))}
 			</ul>

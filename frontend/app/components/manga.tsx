@@ -6,10 +6,11 @@ interface MangaProps {
     genres: string[];
     status: "ongoing" | "completed" | "hiatus" | "cancelled";
     year?: number;
-    onAddToList?: () => void;
+    actionLabel?: string;
+    onAction?: () => void;
 }
 
-export function Manga({ id, title, description, coverUrl, genres, status, year, onAddToList }: MangaProps) {
+export function Manga({ id, title, description, coverUrl, genres, status, year, actionLabel = "Add to List", onAction }: MangaProps) {
     const link = `https://mangadex.org/title/${id}`;
 
     return (
@@ -40,10 +41,10 @@ export function Manga({ id, title, description, coverUrl, genres, status, year, 
                 </p>
                 <button
                     type="button"
-                    onClick={onAddToList}
+                    onClick={onAction}
                     className="mt-auto flex h-10 w-full items-center justify-center gap-2 rounded-full bg-orange-500 px-5 text-sm text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
                 >
-                    Add to List
+                    {actionLabel}
                 </button>
                 <a
                     className="mt-auto flex h-10 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-sm text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
