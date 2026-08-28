@@ -3,6 +3,7 @@ import express, { type Express } from 'express';
 import cors from 'cors';
 import searchRouter from './routes';
 import libraryRouter from './library';
+import recommendationsRouter from './recommendations';
 
 const app: Express = express();
 const port = 3001;
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 
 app.use(searchRouter);
 app.use(libraryRouter);
+app.use(recommendationsRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on http://localhost:${port}`);
