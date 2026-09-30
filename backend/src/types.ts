@@ -51,7 +51,12 @@ export interface MangaDexSearchResponse {
     status: "ongoing" | "completed" | "hiatus" | "cancelled";
     year?: number;
   }
-  
+
+  // A Manga plus Claude's explanation of why it was recommended.
+  export interface Recommendation extends Manga {
+    reason: string;
+  }
+
   export interface ReadingProgress {
     id: string;
     mangaId: string;

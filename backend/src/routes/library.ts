@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { supabase } from './supabase';
-import { requireAuth, AuthedRequest } from './auth';
-import { Manga, ReadingProgress } from './types';
+import { supabase } from '../supabase';
+import { requireAuth, AuthedRequest } from '../services/auth';
+import { Manga, ReadingProgress } from '../types';
 
 const router = Router();
 

@@ -6,11 +6,12 @@ interface MangaProps {
     genres: string[];
     status: "ongoing" | "completed" | "hiatus" | "cancelled";
     year?: number;
+    reason?: string;
     actionLabel?: string;
     onAction?: () => void;
 }
 
-export function Manga({ id, title, description, coverUrl, genres, status, year, actionLabel = "Add to List", onAction }: MangaProps) {
+export function Manga({ id, title, description, coverUrl, genres, status, year, reason, actionLabel = "Add to List", onAction }: MangaProps) {
     const link = `https://mangadex.org/title/${id}`;
 
     return (
@@ -24,6 +25,11 @@ export function Manga({ id, title, description, coverUrl, genres, status, year, 
                 <h3 className="line-clamp-2 text-lg font-semibold leading-tight tracking-tight text-black dark:text-zinc-50">
                     {title}
                 </h3>
+                {reason && (
+                    <p className="rounded-lg bg-orange-50 px-3 py-2 text-sm leading-6 text-orange-900 dark:bg-orange-950 dark:text-orange-200">
+                        {reason}
+                    </p>
+                )}
                 {description && (
                     <p className="line-clamp-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
                         {description}
