@@ -5,7 +5,7 @@ import { Recommendation } from '../types';
 // Bump this whenever the recommendation prompt changes in a way that should
 // produce different output. It is part of the cache key (alongside model), so
 // bumping it retires every existing entry without needing to delete anything.
-export const PROMPT_VERSION = 'v1';
+export const PROMPT_VERSION = 'v2';
 
 // Recommendations don't go stale quickly, but new manga get published and the
 // model improves, so entries expire rather than living forever.
