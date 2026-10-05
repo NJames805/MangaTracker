@@ -3,6 +3,7 @@ import {
     getChapterPages,
     getManga,
     getReadableChapters,
+    hasReadableChapters,
     MangaDexError,
     reportImageLoad,
 } from '../services/mangadex';
@@ -48,6 +49,16 @@ router.get('/manga/:id/chapters', async (req, res) => {
     try {
         const chapters = await getReadableChapters(req.params.id);
         res.status(200).json({ chapters });
+    } catch (error) {
+        sendError(res, error);
+    }
+});
+
+// Lightweight check used when hovering "Read Now" on a card.
+router.get('/manga/:id/availability', async (req, res) => {
+    try {
+        const readable = await hasReadableChapters(req.params.id);
+        res.status(200).json({ readable });
     } catch (error) {
         sendError(res, error);
     }

@@ -38,6 +38,21 @@ export async function fetchChapters(mangaId: string): Promise<Chapter[]> {
 	return chapters;
 }
 
+// Remembered for the visit so each manga is checked at most once. Failed
+// checks are forgotten so a later hover can try again.
+const readableCache = new Map<string, Promise<boolean>>();
+
+export function checkReadable(mangaId: string): Promise<boolean> {
+	let check = readableCache.get(mangaId);
+	if (!check) {
+		check = getJson<{ readable: boolean }>(`/manga/${encodeURIComponent(mangaId)}/availability`)
+			.then(({ readable }) => readable);
+		readableCache.set(mangaId, check);
+		check.catch(() => readableCache.delete(mangaId));
+	}
+	return check;
+}
+
 // `refresh` asks the backend for brand-new URLs, for when the old ones expired.
 export async function fetchPages(chapterId: string, quality: PageQuality, refresh = false): Promise<string[]> {
 	const params = new URLSearchParams({ quality });

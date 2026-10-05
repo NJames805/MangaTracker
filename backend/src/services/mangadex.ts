@@ -141,6 +141,29 @@ export async function getReadableChapters(mangaId: string): Promise<Chapter[]> {
     return [...byNumber.values()].sort((a, b) => sortKey(a) - sortKey(b));
 }
 
+// Cheap yes/no for whether a manga has anything readable in the app, for
+// checking a card on hover without downloading the whole chapter list.
+// Applies the same rules as getReadableChapters.
+export async function hasReadableChapters(mangaId: string): Promise<boolean> {
+    const limit = 20;
+    const params = new URLSearchParams({ limit: String(limit), includeExternalUrl: '0' });
+    params.append('translatedLanguage[]', 'en');
+
+    let page: MangaDexChapterFeedResponse;
+    try {
+        page = await mangadexGet<MangaDexChapterFeedResponse>(`/manga/${encodeURIComponent(mangaId)}/feed`, params);
+    } catch (error) {
+        if (error instanceof MangaDexError && (error.status === 404 || error.status === 400)) return false;
+        throw error;
+    }
+
+    if (page.data.some((entry) => !entry.attributes.externalUrl && entry.attributes.pages > 0)) return true;
+    // Nothing readable in the first batch but more exist: rare, so fall back
+    // to the full check rather than guess.
+    if (page.total > limit) return (await getReadableChapters(mangaId)).length > 0;
+    return false;
+}
+
 // MangaDex guarantees an at-home baseUrl for 15 minutes. Reusing it for 10
 // keeps us inside that window while sparing the 40-requests-per-minute limit
 // on /at-home/server when a reader reloads or goes back to a chapter.

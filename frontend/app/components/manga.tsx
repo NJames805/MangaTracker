@@ -1,4 +1,4 @@
-import Link from "next/link";
+import ReadNowButton from "./read-now-button";
 
 interface MangaProps {
     id: string;
@@ -52,12 +52,7 @@ export function Manga({ id, title, description, coverUrl, genres, status, year, 
                 >
                     {actionLabel}
                 </button>
-                <Link
-                    className="mt-auto flex h-10 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-sm text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-                    href={`/manga/${id}`}
-                >
-                    Read Now
-                </Link>
+                <ReadNowButton mangaId={id} />
             </div>
         </div>
     );
