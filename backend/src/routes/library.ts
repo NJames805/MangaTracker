@@ -5,7 +5,9 @@ import { Manga, ReadingProgress } from '../types';
 
 const router = Router();
 
-router.use(requireAuth);
+// Scoped to /library: an unscoped router.use() runs for every request that
+// reaches this router, which made routes mounted after it require a login.
+router.use('/library', requireAuth);
 
 router.get('/library', async (req: AuthedRequest, res) => {
     const { data, error } = await supabase

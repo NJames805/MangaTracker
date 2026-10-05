@@ -36,7 +36,9 @@ class RecommendationError extends Error {
     }
 }
 
-router.use(requireAuth);
+// Scoped to /recommendations (and /recommendations/more) so this router
+// doesn't demand a login for routes mounted after it.
+router.use('/recommendations', requireAuth);
 
 // Shared guards for both routes. Sends the error response itself and returns
 // null when the request can't proceed.
