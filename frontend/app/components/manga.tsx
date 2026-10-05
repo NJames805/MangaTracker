@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface MangaProps {
     id: string;
     title: string;
@@ -12,8 +14,6 @@ interface MangaProps {
 }
 
 export function Manga({ id, title, description, coverUrl, genres, status, year, reason, actionLabel = "Add to List", onAction }: MangaProps) {
-    const link = `https://mangadex.org/title/${id}`;
-
     return (
         <div className="flex h-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 font-sans shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <div className="aspect-[2/3] w-full bg-zinc-200 dark:bg-zinc-800">
@@ -52,14 +52,12 @@ export function Manga({ id, title, description, coverUrl, genres, status, year, 
                 >
                     {actionLabel}
                 </button>
-                <a
+                <Link
                     className="mt-auto flex h-10 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-sm text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-                    href={link}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={`/manga/${id}`}
                 >
                     Read Now
-                </a>
+                </Link>
             </div>
         </div>
     );

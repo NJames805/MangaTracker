@@ -39,6 +39,44 @@ export interface MangaDexSearchResponse {
       group: "genre" | "theme" | "format" | "demographic";
     };
   }
+
+  export interface MangaDexEntityResponse {
+    result: "ok" | "error";
+    data: MangaDexManga;
+  }
+
+  // Only the chapter fields we use.
+  export interface MangaDexChapter {
+    id: string;
+    attributes: {
+      chapter: string | null;
+      volume: string | null;
+      title: string | null;
+      pages: number;
+      externalUrl: string | null;
+    };
+    relationships: Array<{
+      id: string;
+      type: string;
+      attributes?: {
+        name?: string;
+      };
+    }>;
+  }
+
+  export interface MangaDexChapterFeedResponse {
+    data: MangaDexChapter[];
+    total: number;
+  }
+
+  export interface MangaDexAtHomeResponse {
+    baseUrl: string;
+    chapter: {
+      hash: string;
+      data: string[];
+      dataSaver: string[];
+    };
+  }
   
   // Your simplified types (what your API returns to frontend)
   export interface Manga {
@@ -51,6 +89,18 @@ export interface MangaDexSearchResponse {
     status: "ongoing" | "completed" | "hiatus" | "cancelled";
     year?: number;
   }
+
+  // A chapter that can be read in the app (hosted on MangaDex, English).
+  export interface Chapter {
+    id: string;
+    chapter: string | null;
+    volume: string | null;
+    title: string | null;
+    pages: number;
+    group: string | null;
+  }
+
+  export type PageQuality = "data" | "data-saver";
 
   // A Manga plus Claude's explanation of why it was recommended.
   export interface Recommendation extends Manga {
